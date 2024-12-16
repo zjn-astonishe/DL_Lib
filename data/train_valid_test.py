@@ -3,6 +3,9 @@ import shutil
 import collections
 import math
 
+"""
+用于未按文件夹类别分类，带有csv的数据集
+"""
 
 #@save
 def read_csv_labels(fname):
@@ -39,6 +42,14 @@ def reorg_train_valid(data_dir, labels, valid_ratio):
     return n_valid_per_label
 
 #@save
+def reorg_train(data_dir, labels):
+    """单独整理训练集，配合read_split_train_valid_data使用"""
+    for train_file in os.listdir(os.path.join(data_dir, 'train')):
+        label = labels[train_file.split('.')[0]]
+        fname = os.path.join(data_dir, 'train', train_file)
+        copyfile(fname, os.path.join(data_dir, 'train_valid_test', 'train', label))
+
+#@save
 def reorg_test(data_dir):
     """在预测期间整理测试集，以方便读取"""
     for test_file in os.listdir(os.path.join(data_dir, 'test')):
@@ -50,10 +61,10 @@ def reorg_cifar10_data(data_dir, valid_ratio, file_name):
     reorg_test(data_dir)
 
 if __name__== "__main__" :
-    data_dir = '/home/zjn/Documents/DataSet/kaggle_cifar10_tiny/'
-    file_name = 'trainLabels.csv'
-    # labels = read_csv_labels(os.path.join(data_dir, file_name))
-    # print('# 训练样本: ', len(labels))
-    # print('# 类别: ', len(set(labels.values())))
+    data_dir = '/root/dataset/kaggle_dog_tiny/'
+    file_name = 'labels.csv'
+    labels = read_csv_labels(os.path.join(data_dir, file_name))
+    print('# 训练样本: ', len(labels))
+    print('# 类别: ', len(set(labels.values())))
     valid_ratio = 0.1
-    # reorg_cifar10_data(data_dir, valid_ratio, file_name)
+    reorg_cifar10_data(data_dir, valid_ratio, file_name)

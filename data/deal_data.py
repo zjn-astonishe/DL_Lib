@@ -1,5 +1,8 @@
 import torchvision
 
+"""
+用于图像增广
+"""
 
 #@save
 def deal_data():

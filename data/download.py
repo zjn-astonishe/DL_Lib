@@ -69,9 +69,9 @@ if __name__== "__main__" :
     # DATA_HUB = set_data_hub('http://d2l-data.s3-accelerate.amazonaws.com/', 'kaggle_house_train', 'kaggle_house_pred_train.csv', '585e9cc93e70b39160e7921475f9bcd7d31219ce')
     # train_data = pd.read_csv(download_excel('kaggle_house_train'))
     # print(train_data)
-    DATA_HUB = set_data_hub('http://d2l-data.s3-accelerate.amazonaws.com/', 'cifar10_tiny', 'kaggle_cifar10_tiny.zip', '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd')
+    DATA_HUB = set_data_hub('http://d2l-data.s3-accelerate.amazonaws.com/', 'dog_tiny', 'kaggle_dog_tiny.zip', '0cb91d09b814ecdc07b50f31f8dcad3e81d6a86d')
     demo = True
     if demo:
-        data_dir = download_extract('cifar10_tiny')
+        data_dir = download_extract('dog_tiny')
     else:
         data_dir = '/home/zjn/Documents/DataSet/cifar-10/'
