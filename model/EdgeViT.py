@@ -133,11 +133,13 @@ class LocalProp(nn.Module):
 
 if __name__== "__main__" :
     X = torch.rand(2, 1, 3, 3)
-    X1 = torch.rand(484, 16, 3, 3)
+    X1 = torch.rand(968, 16, 3, 3)
     model = LocalAgg(1)
     model1 = LocalAgg1(16)
-    model2 = LocalProp(16, 3)
+    model2 = LocalProp(16, sample_rate=3)
     print(X1)
     # print(model(X))
-    print(model1(X1).shape)
-    print(model2(X1).shape)
+    X1 = model1(X1)
+    print(X1.shape)
+    X2 = model2(X1)
+    print(X2.shape)

@@ -3,7 +3,7 @@ import torchvision
 import os
 import json
 import random
-from deal_data import deal_data
+from data.deal_data import deal_data
 from matplotlib import pyplot as plt
 
 def read_split_train_valid_data(root: str, val_rate: float = 0.2):
@@ -84,11 +84,7 @@ def read_test_data(root: str):
     # 排序，保证各平台顺序一致
     dataset_class.sort()
     # 生成类别名称以及对应的数字索引
-    # class_indices = dict((k, v) for v, k in enumerate(dataset_class))
-    # json_str = json.dumps(dict((val, key) for key, val in class_indices.items()), indent=4)
-    # 将类别记录在json
-    # with open('class_indices.json', 'w') as json_file:
-        # json_file.write(json_str)
+    class_indices = dict((k, v) for v, k in enumerate(dataset_class))
 
     test_images_path = []  # 存储训练集的所有图片路径
     test_images_label = []  # 存储训练集图片对应索引信息
@@ -102,45 +98,16 @@ def read_test_data(root: str):
         # 排序，保证各平台顺序一致
         images.sort()
         # 获取该类别对应的索引
-        # image_class = class_indices[cla]
-        # 记录该类别的样本数量
-        # every_class_num.append(len(images))
-        # 按比例随机采样验证样本
-        # val_path = random.sample(images, k=int(len(images) * val_rate))
+        image_class = class_indices[cla]
 
         for img_path in images:
             test_images_path.append(img_path)
-            # if img_path in val_path:  # 如果该路径在采样的验证集样本中则存入验证集
-            #     val_images_path.append(img_path)
-            #     val_images_label.append(image_class)
-            # else:  # 否则存入训练集
-            #     train_images_path.append(img_path)
-            #     train_images_label.append(image_class)
+            test_images_label.append(image_class)
 
-    # print("{} images were found in the dataset.".format(sum(every_class_num)))
-    print("{} images for training.".format(len(test_images_path)))
-    # print("{} images for validation.".format(len(val_images_path)))
-    assert len(test_images_path) > 0, "number of training images must greater than 0."
-    # assert len(val_images_path) > 0, "number of validation images must greater than 0."
+    print("{} images for testing.".format(len(test_images_path)))
+    assert len(test_images_path) > 0, "number of testing images must greater than 0."
 
-    # plot_image = False
-    # if plot_image:
-    #     # 绘制每种类别个数柱状图
-    #     plt.bar(range(len(dataset_class)), every_class_num, align='center')
-    #     # 将横坐标0,1,2,3,4替换为相应的类别名称
-    #     plt.xticks(range(len(dataset_class)), dataset_class)
-    #     # 在柱状图上添加数值标签
-    #     for i, v in enumerate(every_class_num):
-    #         plt.text(x=i, y=v + 5, s=str(v), ha='center')
-    #     # 设置x坐标
-    #     plt.xlabel('image class')
-    #     # 设置y坐标
-    #     plt.ylabel('number of images')
-    #     # 设置柱状图的标题
-    #     plt.title('flower class distribution')
-    #     plt.show()
-
-    return test_images_path
+    return test_images_path, test_images_label
 
 
 
