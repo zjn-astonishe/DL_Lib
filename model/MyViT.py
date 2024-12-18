@@ -2,6 +2,7 @@ import torch
 import math
 import torch.nn.functional as F
 import torch.nn as nn
+from torchinfo import summary
 
 from typing import Tuple, Dict
 from torch import Tensor
@@ -382,7 +383,8 @@ def mobile_vit_small(num_classes: int = 1000):
 if __name__ == '__main__':
     # model = mobile_vit_xx_small(num_classes=10)
     model = my_vit_xx_small(num_classes=10)
-    X = torch.rand(2, 3, 224, 224)   # B. C. H. W
+    # X = torch.rand(2, 3, 224, 224)   # B. C. H. W
     # model = MyViTBlock(16, 64, 32)
     # print("MyViTBlock")
-    print(model(X).shape)
+    # print(model(X).shape)
+    summary(model, input_size=(2, 3, 224, 224))
