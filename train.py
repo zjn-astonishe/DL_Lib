@@ -5,6 +5,7 @@ import torch
 import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
+from lion_pytorch import Lion
 
 from data.my_dataset import MyDataSet
 from model.MyViT import my_vit_xx_small as create_model
@@ -82,7 +83,8 @@ def main(args):
                 print("training {}".format(name))
 
     pg = [p for p in model.parameters() if p.requires_grad]
-    optimizer = optim.AdamW(pg, lr=args.lr, weight_decay=1E-2)
+    # optimizer = optim.AdamW(pg, lr=args.lr, weight_decay=1E-2)
+    optimizer = Lion(pg, lr=args.lr, weight_decay=1E-2)
 
     best_acc = 0.
     for epoch in range(args.epochs):
