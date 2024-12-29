@@ -5,9 +5,11 @@ import torch.nn as nn
 
 from torch import Tensor
 from typing import Tuple, Dict
+
 from model.MobileNet import ConvLayer
 from model.EdgeViT import LocalAgg, LocalProp, LocalAgg1
-
+# from MobileNet import ConvLayer
+# from EdgeViT import LocalAgg, LocalProp, LocalAgg1
 
 class SeparableSelfAttention(nn.Module):
     """
@@ -15,7 +17,7 @@ class SeparableSelfAttention(nn.Module):
     """
     def __init__(self, embed_dim, attn_dropout=0):
         super().__init__()
-        self.qkv_proj = ConvLayer(in_channels=embed_dim, out_channels=1+2*embed_dim, kernel_size=3, bias=True)
+        self.qkv_proj = ConvLayer(in_channels=embed_dim, out_channels=1+2*embed_dim, kernel_size=1, bias=True)
         # self.qkv_proj = conv_2d(embed_dim, 1+2*embed_dim, kernel_size=1, bias=True, norm=False, act=False)
         # self.qkv_proj = nn.Linear(embed_dim, 1+2*embed_dim, bias=True)
         self.attn_dropout = nn.Dropout(attn_dropout)
@@ -45,8 +47,9 @@ class MyTransformerEncoder(nn.Module):
         self, 
         embed_dim: int, 
         ffn_latent_dim: int,
-        dropout: int = 0,
-        attn_drop: int = 0
+        dropout: float = 0,
+        ffn_dropout: float = 0,
+        attn_drop: float = 0
     ) -> None:
         super().__init__()
         
@@ -54,13 +57,13 @@ class MyTransformerEncoder(nn.Module):
         self.attn = nn.Sequential()
         self.attn.add_module(name="attn_gn", module=nn.GroupNorm(num_channels=embed_dim, eps=1e-5, affine=True, num_groups=1))
         self.attn.add_module(name="attn", module=SeparableSelfAttention(embed_dim=embed_dim, attn_dropout=attn_drop))
-        self.attn.add_module(name="attn_drop", module=nn.Dropout(dropout))
+        self.attn.add_module(name="attn_drop2", module=nn.Dropout(dropout))
         
         # ffn
         self.ffn = nn.Sequential()
         self.ffn.add_module(name="ffn_gn", module=nn.GroupNorm(num_channels=embed_dim, eps=1e-5, affine=True, num_groups=1))
         self.ffn.add_module(name="ffn_conv1", module=ConvLayer(in_channels=embed_dim, out_channels=ffn_latent_dim, kernel_size=1, stride=1, bias=True, use_norm=False, use_act=True))
-        self.ffn.add_module(name="ffn_drop1", module=nn.Dropout(dropout))
+        self.ffn.add_module(name="ffn_drop1", module=nn.Dropout(ffn_dropout))
         self.ffn.add_module(name="ffn_conv2", module=ConvLayer(in_channels=ffn_latent_dim, out_channels=embed_dim, kernel_size=1, stride=1, bias=True, use_norm=False, use_act=False))
         self.ffn.add_module(name="ffn_drop2", module=nn.Dropout(dropout))
 

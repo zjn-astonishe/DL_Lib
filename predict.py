@@ -30,9 +30,9 @@ def main():
                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     }
     test_dataset = MyDataSet(images_path=test_images_path, images_class=test_images_label, transform=data_transform['test'])
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=8, shuffle=False, pin_memory=True, collate_fn=test_dataset.collate_fn)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=16, shuffle=False, pin_memory=True, collate_fn=test_dataset.collate_fn)
 
-    img_path = "/root/dataset/cifar-10/test/6.png"
+    img_path = "/root/dataset/cifar-10/train_valid_test/test/unknown/1.png"
     assert os.path.exists(img_path), "file: '{}' dose not exist.".format(img_path)
     img = Image.open(img_path)
     plt.imshow(img)
@@ -62,29 +62,28 @@ def main():
             pred = model(images.to(device))
             pred_classes = torch.max(pred, dim=1)[1]
             pred_labels.extend(pred_classes.cpu().detach().numpy())
-        # predict class
-        output = torch.squeeze(model(img.to(device))).cpu()
-        predict = torch.softmax(output, dim=0)
-        predict_cla = torch.argmax(predict).numpy()
-
-    # for i in pred_labels:
-    #     print(class_indict[str(i)])
-
-        
-
-    print_res = "class: {}   prob: {:.3}".format(class_indict[str(predict_cla)],
-                                                 predict[predict_cla].numpy())
-    plt.title(print_res)
-    for i in range(len(predict)):
-        print("class: {:10}   prob: {:.3}".format(class_indict[str(i)],
-                                                  predict[i].numpy()))
-    plt.show()
 
     with open('submission.csv', 'w') as output_file:
         output_file.write('id,' + 'label' + '\n')
         for i, out in zip(test_dataset.images_path, pred_labels):
             output_file.write(i.split('.')[0] + ',' + class_indict[str(out)] + '\n')
     
+    # for i in pred_labels:
+    #     print(class_indict[str(i)])
+
+        # predict class
+    #     output = torch.squeeze(model(img.to(device))).cpu()
+    #     predict = torch.softmax(output, dim=0)
+    #     predict_cla = torch.argmax(predict).numpy()
+
+    # print_res = "class: {}   prob: {:.3}".format(class_indict[str(predict_cla)],
+    #                                              predict[predict_cla].numpy())
+    # plt.title(print_res)
+    # for i in range(len(predict)):
+    #     print("class: {:10}   prob: {:.3}".format(class_indict[str(i)],
+    #                                               predict[i].numpy()))
+    # plt.show()
+
 
 if __name__ == '__main__':
     main()

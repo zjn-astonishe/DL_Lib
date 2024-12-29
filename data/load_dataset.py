@@ -11,7 +11,9 @@ def read_split_train_valid_data(root: str, val_rate: float = 0.2):
     assert os.path.exists(root), "dataset root: {} does not exist.".format(root)
 
     # 遍历文件夹，一个文件夹对应一个类别
+    # print(os.listdir(root))
     dataset_class = [cla for cla in os.listdir(root) if os.path.isdir(os.path.join(root, cla))]
+    # print(dataset_class)
     # 排序，保证各平台顺序一致
     dataset_class.sort()
     # 生成类别名称以及对应的数字索引
@@ -26,10 +28,12 @@ def read_split_train_valid_data(root: str, val_rate: float = 0.2):
     val_images_path = []  # 存储验证集的所有图片路径
     val_images_label = []  # 存储验证集图片对应索引信息
     every_class_num = []  # 存储每个类别的样本总数
-    supported = [".jpg", ".JPG", ".png", ".PNG"]  # 支持的文件后缀类型
+    supported = [".jpg", ".JPG", ".png", ".PNG", ".JPEG"]  # 支持的文件后缀类型
     # 遍历每个文件夹下的文件
     for cla in dataset_class:
         cla_path = os.path.join(root, cla)
+        # print(cla_path)
+        # print(os.listdir(cla_path))
         # 遍历获取supported支持的所有文件路径
         images = [os.path.join(root, cla, i) for i in os.listdir(cla_path)
                   if os.path.splitext(i)[-1] in supported]
@@ -79,7 +83,7 @@ def read_train_valid_data(root:str):
     random.seed(0)  # 保证随机结果可复现
     assert os.path.exists(root), "dataset root: {} does not exist.".format(root)
     train_root = os.path.join(root, "train")
-    valid_root = os.path.join(root, "valid")
+    valid_root = os.path.join(root, "val")
     # 遍历文件夹，一个文件夹对应一个类别
     dataset_class = [cla for cla in os.listdir(train_root) if os.path.isdir(os.path.join(train_root, cla))]
     # 排序，保证各平台顺序一致

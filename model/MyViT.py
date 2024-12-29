@@ -2,14 +2,17 @@ import torch
 import math
 import torch.nn.functional as F
 import torch.nn as nn
-from torchinfo import summary
 
 from typing import Tuple, Dict
 from torch import Tensor
 from model.MobileNet import ConvLayer, InvertedResidual
 from model.MyTransformer import MyTransformerEncoder
 from model.EdgeViT import LocalAgg, LocalProp, LocalAgg1
-from model.MyViTConfig import get_config
+from config.MyViTConfig import get_config
+# from MobileNet import ConvLayer, InvertedResidual
+# from MyTransformer import MyTransformerEncoder
+# from EdgeViT import LocalAgg, LocalProp, LocalAgg1
+# from MyViTConfig import get_config
 
 class MyViTBlock(nn.Module):
     """
@@ -20,8 +23,9 @@ class MyViTBlock(nn.Module):
         in_channels: int,
         embed_dim: int,
         ffn_latent_dim: int,
-        dropout: int = 0,
-        attn_dropout: int = 0,
+        dropout: float = 0,
+        ffn_dropout: float = 0,
+        attn_dropout: float = 0,
         patch_h: int = 3,
         patch_w: int = 3,
         attn_blocks: int = 3,
@@ -76,7 +80,7 @@ class MyViTBlock(nn.Module):
         # global self attention
         self.global_rep = nn.Sequential()
         for i in range(attn_blocks):
-            self.global_rep.add_module(name=f'MyTransformerEncoder_{i}', module=MyTransformerEncoder(embed_dim=embed_dim, ffn_latent_dim=ffn_latent_dim, dropout=dropout, attn_drop=attn_dropout))
+            self.global_rep.add_module(name=f'MyTransformerEncoder_{i}', module=MyTransformerEncoder(embed_dim=embed_dim, ffn_latent_dim=ffn_latent_dim, dropout=dropout, ffn_dropout=ffn_dropout, attn_drop=attn_dropout))
         self.global_rep.add_module(name='MyTransformerEncoderLayerNorm2D', module=nn.GroupNorm(num_channels=embed_dim, eps=1e-5, affine=True, num_groups=1))
 
         # fusion
@@ -201,6 +205,7 @@ class MyViTBlock(nn.Module):
         local = local * global2local
         globals = globals * local2global
         res = res + self.fusion(torch.cat((local, globals), dim=1))
+        # res = res + self.fusion(globals)
         return res
 
 class MyViT(nn.Module):
@@ -215,19 +220,20 @@ class MyViT(nn.Module):
         out_channels = 16
 
         # depth wise
-        self.conv_1 = ConvLayer(
+        self.conv_1 = nn.Sequential()
+        self.conv_1.add_module(name="dwconv1", module=ConvLayer(
             in_channels=image_channels,
             out_channels=image_channels,
             kernel_size=3,
             stride=2,
             groups=image_channels
-        )
+        ))
         # project wise
-        self.conv_1 = ConvLayer(
+        self.conv_1.add_module(name="pwconv1", module=ConvLayer(
             in_channels=image_channels,
             out_channels=out_channels,
             kernel_size=1
-        )
+        ))
 
         self.layer_1, out_channels = self._make_layer(input_channel=out_channels, cfg=model_cfg["layer1"])
         self.layer_2, out_channels = self._make_layer(input_channel=out_channels, cfg=model_cfg["layer2"])
@@ -364,7 +370,7 @@ def my_vit_xx_small(num_classes: int = 1000):
     return m
 
 
-def mobile_vit_x_small(num_classes: int = 1000):
+def my_vit_x_small(num_classes: int = 1000):
     # pretrain weight link
     # https://docs-assets.developer.apple.com/ml-research/models/cvnets/classification/mobilevit_xs.pt
     config = get_config("x_small")
@@ -372,7 +378,7 @@ def mobile_vit_x_small(num_classes: int = 1000):
     return m
 
 
-def mobile_vit_small(num_classes: int = 1000):
+def my_vit_small(num_classes: int = 1000):
     # pretrain weight link
     # https://docs-assets.developer.apple.com/ml-research/models/cvnets/classification/mobilevit_s.pt
     config = get_config("small")
@@ -382,9 +388,8 @@ def mobile_vit_small(num_classes: int = 1000):
 
 if __name__ == '__main__':
     # model = mobile_vit_xx_small(num_classes=10)
-    model = my_vit_xx_small(num_classes=10)
-    # X = torch.rand(2, 3, 224, 224)   # B. C. H. W
+    model = my_vit_small(num_classes=10)
+    X = torch.rand(2, 3, 224, 224)   # B. C. H. W
     # model = MyViTBlock(16, 64, 32)
     # print("MyViTBlock")
-    # print(model(X).shape)
-    summary(model, input_size=(2, 3, 224, 224))
+    print(model(X).shape)

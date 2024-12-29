@@ -8,9 +8,10 @@ from torchvision import transforms
 from lion_pytorch import Lion
 
 from data.my_dataset import MyDataSet
-from model.MyViT import my_vit_xx_small as create_model
+# from model.MyViT import my_vit_xx_small as create_model
+from model.MyViT import my_vit_small as create_model
 from utils.utils import train_one_epoch, evaluate
-from data.load_dataset import read_split_train_valid_data
+from data.load_dataset import read_split_train_valid_data, read_train_valid_data
 
 def main(args):
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
@@ -21,7 +22,8 @@ def main(args):
     tb_writer = SummaryWriter()
 
     train_images_path, train_images_label, val_images_path, val_images_label = read_split_train_valid_data(os.path.join(args.data_path))
-
+    # train_images_path, train_images_label, val_images_path, val_images_label = read_train_valid_data(os.path.join(args.data_path))
+    
     img_size = 32
     data_transform = {
         "train": transforms.Compose([transforms.RandomResizedCrop(img_size),
@@ -83,8 +85,8 @@ def main(args):
                 print("training {}".format(name))
 
     pg = [p for p in model.parameters() if p.requires_grad]
-    # optimizer = optim.AdamW(pg, lr=args.lr, weight_decay=1E-2)
-    optimizer = Lion(pg, lr=args.lr, weight_decay=1E-2)
+    # optimizer = Lion(pg, lr=args.lr, weight_decay=1E-2)
+    optimizer = optim.AdamW(pg, lr=args.lr, weight_decay=1E-2)
 
     best_acc = 0.
     for epoch in range(args.epochs):
@@ -119,7 +121,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_classes', type=int, default=10)
     parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--batch-size', type=int, default=8)
+    parser.add_argument('--batch-size', type=int, default=16)
     parser.add_argument('--lr', type=float, default=0.0002)
 
     # 数据集所在根目录
@@ -128,6 +130,8 @@ if __name__ == '__main__':
     #                     default="/data/flower_photos")
     parser.add_argument('--data-path', type=str,
                     default="/root/dataset/cifar-10/train_valid_test/train_valid/")
+    # parser.add_argument('--data-path', type=str, default="/root/autodl-tmp/imagenet100/")
+    # parser.add_argument('--data-path', type=str, default="/root/autodl-tmp/imagenet/")
     # 预训练权重路径，如果不想载入就设置为空字符
     # parser.add_argument('--weights', type=str, default='./mobilevit_xxs.pt',
     #                     help='initial weights path')
