@@ -146,7 +146,7 @@ def read_test_data(root: str):
 
     test_images_path = []  # 存储训练集的所有图片路径
     test_images_label = []  # 存储训练集图片对应索引信息
-    supported = [".jpg", ".JPG", ".png", ".PNG"]  # 支持的文件后缀类型
+    supported = [".jpg", ".JPG", ".png", ".PNG", ".JPEG"]  # 支持的文件后缀类型
     # 遍历每个文件夹下的文件
     for cla in dataset_class:
         cla_path = os.path.join(root, cla)
